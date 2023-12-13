@@ -9,6 +9,7 @@ const categoryRoute = require("./routes/category");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const cloudinary = require("cloudinary").v2;
 
 
 dotenv.config();
@@ -18,13 +19,36 @@ app.use(cors({
     methods:["GET", "POST", "PUT", "DELETE"],
 }));
 app.use(express.json());
-app.use("/images", express.static(path.join(__dirname, "/images")));
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
+  api_key: process.env.CLOUDINARY_CLIENT_API,
+  api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
+});
+//app.use("/images", express.static(path.join(__dirname, "/images")));
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.MONGO_URL, {
   dbName: 'validate'
 }).then(console.log("Connected to MongoDB")).catch((err) => console.log(err));
 
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage(); // Use memory storage for multer
+
+const upload = multer({ storage: storage });
+
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.buffer.toString("base64"), {
+      public_id: req.body.name,
+    });
+
+    // Access the Cloudinary URL from result.secure_url
+    res.status(200).json({message: "File has been uploaded", imageUrl: result.secure_url});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Error uploading file to Cloudinary", details: error.message});
+  }
+});
+/*const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");
   },
@@ -33,10 +57,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
-app.post("/api/upload", upload.single("file"), (req, res) => {
+const upload = multer({ storage: storage });*/
+/*app.post("/api/upload", upload.single("file"), (req, res) => {
   res.status(200).json("File has been uploaded");
-});
+});*/
+
+
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
