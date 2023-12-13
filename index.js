@@ -8,8 +8,15 @@ const postRoute = require("./routes/post");
 const categoryRoute = require("./routes/category");
 const multer = require("multer");
 const path = require("path");
+const cors = require("cors");
+
 
 dotenv.config();
+app.use(cors({
+  origin:process.env.FRONTEND_URL,
+    credentials: true,
+    methods:["GET", "POST", "PUT", "DELETE"],
+}));
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "/images")));
 mongoose.set('strictQuery', true);
