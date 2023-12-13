@@ -36,6 +36,10 @@ app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/categories", categoryRoute);
 
+app.get('/', (req, res) => 
+    res.send(`<h1>Site is Working. Click <a href=${process.env.FRONTEND_URL}>here</a> to visit frontend </h1>`)
+);
+
 app.listen("8000", () => {
   console.log("Backend is running.");
 });
