@@ -9,18 +9,18 @@ const categoryRoute = require("./routes/category");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("cloudinary");
 
 
 dotenv.config();
 app.use(cors({
-  origin:process.env.FRONTEND_URL,
+  origin:"*",
     credentials: true,
     methods:["GET", "POST", "PUT", "DELETE"],
 }));
 app.use(express.json());
 
-cloudinary.config({
+cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
   api_key: process.env.CLOUDINARY_CLIENT_API,
   api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
